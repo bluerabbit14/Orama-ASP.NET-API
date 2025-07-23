@@ -5040,11 +5040,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Orama-Mobile-APP\\Orama API\\Orama API.csproj",
+      "projectUniqueName": "D:\\Orama-ASP.NET-API\\Orama API.csproj",
       "projectName": "Orama API",
-      "projectPath": "D:\\Orama-Mobile-APP\\Orama API\\Orama API.csproj",
+      "projectPath": "D:\\Orama-ASP.NET-API\\Orama API.csproj",
       "packagesPath": "C:\\Users\\inest\\.nuget\\packages\\",
-      "outputPath": "D:\\Orama-Mobile-APP\\Orama API\\obj\\",
+      "outputPath": "D:\\Orama-ASP.NET-API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

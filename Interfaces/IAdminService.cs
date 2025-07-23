@@ -10,6 +10,7 @@ namespace Orama_API.Interfaces
         Task<UserProfile?> GetUserByEmailAsync(string email);
         Task<UserProfile?> GetUserByPhoneAsync(string phone);
         Task<UserStatusResponseDTO?> AlterUserStatusAsync(int id);
+        Task<object> DeleteUserAsync(int id);
 
     }
 }

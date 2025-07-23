@@ -84,5 +84,30 @@ namespace Orama_API.Services
                 Message = $"User status updated successfully. User is now {(user.IsActive ? "Active" : "Inactive")}."
             };
         }
+        
+        public async Task<object> DeleteUserAsync(int id)
+        {
+            var user = await _context.UserProfilies
+                .FirstOrDefaultAsync(u => u.UserId == id);
+                
+            if (user == null)
+                throw new InvalidOperationException($"User with ID {id} not found.");
+                
+            // Store user information before deletion for response
+            var deletedUser = new
+            {
+                UserId = user.UserId,
+                Name = user.Name,
+                Email = user.Email,
+                DeletedAt = DateTime.UtcNow,
+                Message = $"User '{user.Name}' with email '{user.Email}' has been successfully deleted."
+            };
+            
+            // Remove the user from the database
+            _context.UserProfilies.Remove(user);
+            await _context.SaveChangesAsync();
+            
+            return deletedUser;
+        }
     }
 }

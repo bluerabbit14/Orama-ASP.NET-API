@@ -112,43 +112,6 @@ namespace Orama_API.Services
             };
             return result;
         }
-        public async Task<bool> EmailRegisteredAsync(string Email)
-        {
-
-            var user = await _context.UserProfilies
-                .FirstOrDefaultAsync(u => u.Email == Email);
-
-            if (user.IsActive == false)
-                throw new InvalidOperationException("User is not active");
-
-            if (user == null)
-                return false;
-            return true;
-        }
-        public async Task<bool> VerifyUserEmailAsync(string Email)
-        {
-            var user = await _context.UserProfilies
-                .FirstOrDefaultAsync(u => u.Email == Email);
-                
-            if (user == null)
-                throw new InvalidOperationException($"User with Email: {Email} not found.");
-                
-            if (user.IsEmailVerified)
-                return true;
-            return false;
-        }
-        public async Task<bool> VerifyUserPhoneAsync(string Phone)
-        {
-            var user = await _context.UserProfilies
-                .FirstOrDefaultAsync(u => u.Phone == Phone);
-                
-            if (user == null)
-                throw new InvalidOperationException($"User with phone number: {Phone} not found.");
-                
-            if (user.IsPhoneVerified)
-                return true;
-            return false;
-        }
 
     }
 }

@@ -88,12 +88,29 @@ namespace Orama_API.Controllers
             }
         }
         
-        [HttpPut("AlterStatus/{id}")]
+        [HttpPut("AlterUserStatus/{id}")]
         public async Task<IActionResult> AlterUserStatusAsync(int id)
         {
             try
             {
                 var response = await _adminService.AlterUserStatusAsync(id);
+                return Ok(response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpDelete("DeleteUser/{id}")]
+        public async Task<IActionResult> DeleteUserAsync(int id)
+        {
+            try
+            {
+                var response = await _adminService.DeleteUserAsync(id);
                 return Ok(response);
             }
             catch (ArgumentException ex)

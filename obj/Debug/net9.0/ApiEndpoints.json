@@ -2,8 +2,24 @@
   {
     "ContainingType": "Orama_API.Controllers.AdminController",
     "Method": "AlterUserStatusAsync",
-    "RelativePath": "api/Admin/AlterStatus/{id}",
+    "RelativePath": "api/Admin/AlterUserStatus/{id}",
     "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Orama_API.Controllers.AdminController",
+    "Method": "DeleteUserAsync",
+    "RelativePath": "api/Admin/DeleteUser/{id}",
+    "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -74,9 +90,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Orama_API.Controllers.ServiceController",
+    "ContainingType": "Orama_API.Controllers.EmailController",
     "Method": "DebugOTPAsync",
-    "RelativePath": "api/Service/DebugOTP",
+    "RelativePath": "api/Email/DebugOTP",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -90,9 +106,57 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Orama_API.Controllers.ServiceController",
+    "ContainingType": "Orama_API.Controllers.EmailController",
+    "Method": "IsEmailRegisteredAsync",
+    "RelativePath": "api/Email/IsEmailRegistered",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Orama_API.Controllers.EmailController",
+    "Method": "IsEmailValidAsync",
+    "RelativePath": "api/Email/IsEmailValid",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Orama_API.Controllers.EmailController",
+    "Method": "IsEmailVerifiedAsync",
+    "RelativePath": "api/Email/IsEmailVerify/{Email}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Orama_API.Controllers.EmailController",
     "Method": "ResendEmailOTPAsync",
-    "RelativePath": "api/Service/ResendEmailOTP",
+    "RelativePath": "api/Email/ResendEmailOTP",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -106,9 +170,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Orama_API.Controllers.ServiceController",
-    "Method": "SendEmailOTPAsync",
-    "RelativePath": "api/Service/SendEmailOTP",
+    "ContainingType": "Orama_API.Controllers.EmailController",
+    "Method": "SendOTPAsync",
+    "RelativePath": "api/Email/SendEmailOTP",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -122,9 +186,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Orama_API.Controllers.ServiceController",
+    "ContainingType": "Orama_API.Controllers.EmailController",
     "Method": "VerifyEmailOTPAsync",
-    "RelativePath": "api/Service/VerifyEmailOTP",
+    "RelativePath": "api/Email/VerifyEmailOTP",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -139,24 +203,8 @@
   },
   {
     "ContainingType": "Orama_API.Controllers.UserController",
-    "Method": "EmailRegisteredAsync",
-    "RelativePath": "api/User/EmailRegistered",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "Email",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Orama_API.Controllers.UserController",
     "Method": "LoginUserAsync",
-    "RelativePath": "api/User/Login",
+    "RelativePath": "api/User/Authorize",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -172,7 +220,7 @@
   {
     "ContainingType": "Orama_API.Controllers.UserController",
     "Method": "PasswordUserAsync",
-    "RelativePath": "api/User/Password",
+    "RelativePath": "api/User/ChangePassword",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -196,38 +244,6 @@
       {
         "Name": "signUpRequestDto",
         "Type": "Orama_API.DTO.SignUpRequestDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Orama_API.Controllers.UserController",
-    "Method": "VerifyUserEmailAsync",
-    "RelativePath": "api/User/VerifyEmail/{Email}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "Email",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Orama_API.Controllers.UserController",
-    "Method": "VerifyUserPhoneAsync",
-    "RelativePath": "api/User/VerifyPhone/{Phone}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "Phone",
-        "Type": "System.String",
         "IsRequired": true
       }
     ],

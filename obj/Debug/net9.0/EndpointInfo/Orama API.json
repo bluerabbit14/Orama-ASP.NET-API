@@ -83,7 +83,7 @@
         }
       }
     },
-    "/api/Admin/AlterStatus/{id}": {
+    "/api/Admin/AlterUserStatus/{id}": {
       "put": {
         "tags": [
           "Admin"
@@ -106,10 +106,97 @@
         }
       }
     },
-    "/api/Service/SendEmailOTP": {
+    "/api/Admin/DeleteUser/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Email/IsEmailValid": {
       "post": {
         "tags": [
-          "Service"
+          "Email"
+        ],
+        "parameters": [
+          {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Email/IsEmailRegistered": {
+      "post": {
+        "tags": [
+          "Email"
+        ],
+        "parameters": [
+          {
+            "name": "Email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Email/IsEmailVerify/{Email}": {
+      "get": {
+        "tags": [
+          "Email"
+        ],
+        "parameters": [
+          {
+            "name": "Email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Email/SendEmailOTP": {
+      "post": {
+        "tags": [
+          "Email"
         ],
         "requestBody": {
           "content": {
@@ -137,10 +224,10 @@
         }
       }
     },
-    "/api/Service/VerifyEmailOTP": {
+    "/api/Email/VerifyEmailOTP": {
       "post": {
         "tags": [
-          "Service"
+          "Email"
         ],
         "requestBody": {
           "content": {
@@ -168,10 +255,10 @@
         }
       }
     },
-    "/api/Service/ResendEmailOTP": {
+    "/api/Email/ResendEmailOTP": {
       "post": {
         "tags": [
-          "Service"
+          "Email"
         ],
         "requestBody": {
           "content": {
@@ -199,10 +286,10 @@
         }
       }
     },
-    "/api/Service/DebugOTP": {
+    "/api/Email/DebugOTP": {
       "post": {
         "tags": [
-          "Service"
+          "Email"
         ],
         "requestBody": {
           "content": {
@@ -261,59 +348,7 @@
         }
       }
     },
-    "/api/User/Password": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/User/EmailRegistered": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "parameters": [
-          {
-            "name": "Email",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/User/Login": {
+    "/api/User/Authorize": {
       "post": {
         "tags": [
           "User"
@@ -344,43 +379,30 @@
         }
       }
     },
-    "/api/User/VerifyEmail/{Email}": {
-      "put": {
+    "/api/User/ChangePassword": {
+      "post": {
         "tags": [
           "User"
         ],
-        "parameters": [
-          {
-            "name": "Email",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
+              }
             }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/User/VerifyPhone/{Phone}": {
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "parameters": [
-          {
-            "name": "Phone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success"

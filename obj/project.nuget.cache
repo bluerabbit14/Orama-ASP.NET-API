@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "SYZByFXinFU=",
+  "dgSpecHash": "i5Sj3uFkDUQ=",
   "success": true,
-  "projectFilePath": "D:\\Orama-Mobile-APP\\Orama API\\Orama API.csproj",
+  "projectFilePath": "D:\\Orama-ASP.NET-API\\Orama API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\inest\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\inest\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
