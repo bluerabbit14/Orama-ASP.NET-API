@@ -9,6 +9,7 @@ namespace Orama_API.Data
         {
         }
         public DbSet<UserProfile> UserProfilies { get; set; } = null!;
+        public DbSet<OTPEntity> OTPs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,21 @@ namespace Orama_API.Data
                 entity.Property(u => u.Bio).HasMaxLength(255);
                 entity.Property(u => u.SocialHandle);
                 entity.Property(u => u.LastLogin).HasDefaultValueSql("GETDATE()");
+            });
+
+            // Configure OTP entity
+            modelBuilder.Entity<OTPEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.OTP).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Purpose).HasMaxLength(50);
+                
+                // Create index on Email for faster lookups
+                entity.HasIndex(e => e.Email);
+                
+                // Create index on ExpiresAt for cleanup queries
+                entity.HasIndex(e => e.ExpiresAt);
             });
         }
     }

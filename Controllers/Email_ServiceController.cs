@@ -8,11 +8,11 @@ namespace Orama_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmailController:ControllerBase
+    public class Email_ServiceController:ControllerBase
     {
         private readonly IEmailService _emailService;
         private readonly UserDbContext _context;
-        public EmailController(IEmailService emailService, UserDbContext context)
+        public Email_ServiceController(IEmailService emailService, UserDbContext context)
         {
             _emailService = emailService;
             _context = context;
@@ -150,29 +150,8 @@ namespace Orama_API.Controllers
                 if (string.IsNullOrWhiteSpace(request.Email))
                     return BadRequest(new { message = "Email is required" });
 
-                // Use reflection to access the private _otpStore
-                var emailServiceType = _emailService.GetType();
-                var otpStoreField = emailServiceType.GetField("_otpStore",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-                if (otpStoreField != null)
-                {
-                    var otpStore = otpStoreField.GetValue(_emailService) as Dictionary<string, (string otp, DateTime expiry)>;
-                    if (otpStore != null && otpStore.ContainsKey(request.Email))
-                    {
-                        var (otp, expiry) = otpStore[request.Email];
-                        return Ok(new
-                        {
-                            message = "OTP found in store",
-                            storedOtp = otp,
-                            expiry = expiry,
-                            isExpired = DateTime.UtcNow > expiry,
-                            currentTime = DateTime.UtcNow
-                        });
-                    }
-                }
-
-                return Ok(new { message = "No OTP found for this email" });
+                var response = await _emailService.DebugOTPAsync(request);
+                return Ok(response);
             }
             catch (Exception ex)
             {

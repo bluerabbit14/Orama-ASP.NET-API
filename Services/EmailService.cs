@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Orama_API.Data;
 using Orama_API.DTO;
 using Orama_API.Interfaces;
+using Orama_API.Domain;
 using System.Net;
 using System.Net.Mail;
 
@@ -12,13 +13,13 @@ namespace Orama_API.Services
     {
         private readonly UserDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly Dictionary<string, (string otp, DateTime expiry)> _otpStore = new();
 
         public EmailService(UserDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
         }
+        
         public async Task<bool> IsEmailValidAsync(string email)
         {
             try
@@ -31,6 +32,7 @@ namespace Orama_API.Services
                 return false;
             }
         }
+        
         public async Task<bool> IsEmailRegisteredAsync(string Email)
         {
             var user = await _context.UserProfilies
@@ -44,6 +46,7 @@ namespace Orama_API.Services
 
             return true;
         }
+        
         public async Task<bool> IsEmailVerifiedAsync(string email)
         {
             var user = await _context.UserProfilies
@@ -52,6 +55,7 @@ namespace Orama_API.Services
                 throw new InvalidOperationException($"User with Email: {email} not found.");
             return user.IsEmailVerified;
         }
+        
         public async Task<EmailOTPResponseDTO> SendOTPAsync(string email)
         {
             try
@@ -76,14 +80,45 @@ namespace Orama_API.Services
                         Email = email
                     };
 
+                // Check for existing non-expired, non-used OTPs
+                var currentTime = DateTime.UtcNow;
+                var existingOTPs = await _context.OTPs
+                    .Where(o => o.Email == email && 
+                               !o.IsUsed && 
+                               o.ExpiresAt > currentTime)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .ToListAsync();
+
+                // If user has 2 or more non-expired, non-used OTPs, restrict further requests
+                if (existingOTPs.Count >= 2)
+                {
+                    return new EmailOTPResponseDTO
+                    {
+                        Message = "You already have 2 active OTPs. Please use one of the existing OTPs or wait for them to expire before requesting a new one.",
+                        Success = false,
+                        Email = email,
+                        ErrorType = "TOO_MANY_ACTIVE_OTPS"
+                    };
+                }
+
                 // Generate 6-digit OTP
                 var otp = GenerateOTP();
-                var expiry = DateTime.UtcNow.AddMinutes(5); // OTP expires in 5 minutes
+                var expiry = currentTime.AddMinutes(5); // OTP expires in 5 minutes
 
-                // Store OTP in memory (in production, use Redis or database)
-                _otpStore[email] = (otp, expiry);
+                // Create new OTP entity
+                var otpEntity = new OTPEntity
+                {
+                    Email = email,
+                    OTP = otp,
+                    CreatedAt = currentTime,
+                    ExpiresAt = expiry,
+                    IsUsed = false,
+                    Purpose = "EmailVerification"
+                };
 
-                bool exactMatch = _otpStore.ContainsKey(email);
+                // Save to database
+                _context.OTPs.Add(otpEntity);
+                await _context.SaveChangesAsync();
 
                 try
                 {
@@ -100,8 +135,9 @@ namespace Orama_API.Services
                 }
                 catch (Exception emailEx)
                 {
-                    // If email sending fails, remove the OTP from store
-                    _otpStore.Remove(email);
+                    // If email sending fails, remove the OTP from database
+                    _context.OTPs.Remove(otpEntity);
+                    await _context.SaveChangesAsync();
                     
                     return new EmailOTPResponseDTO
                     {
@@ -113,7 +149,7 @@ namespace Orama_API.Services
             }
             catch (Exception ex)
             {
-                 Console.WriteLine($"General error in SendOTPAsync for {email}: {ex.Message}");
+                Console.WriteLine($"General error in SendOTPAsync for {email}: {ex.Message}");
                 return new EmailOTPResponseDTO
                 {
                     Message = $"Failed to process OTP request: {ex.Message}",
@@ -122,7 +158,8 @@ namespace Orama_API.Services
                 };
             }
         }
-        public async Task<object> VerifyEmailOTPAsync(string email, string otp)  //showing error in this line otp not verified
+        
+        public async Task<object> VerifyEmailOTPAsync(string email, string otp)
         {
             try
             {
@@ -172,60 +209,59 @@ namespace Orama_API.Services
                     };
                 }
 
-                // Check if OTP exists for this email
-                if (!_otpStore.ContainsKey(email))
+                // Find the OTP in database
+                var currentTime = DateTime.UtcNow;
+                var otpEntity = await _context.OTPs
+                    .Where(o => o.Email == email && 
+                               o.OTP == otp && 
+                               !o.IsUsed && 
+                               o.ExpiresAt > currentTime)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (otpEntity == null)
                 {
+                    // Check if OTP exists but is expired
+                    var expiredOTP = await _context.OTPs
+                        .Where(o => o.Email == email && o.OTP == otp)
+                        .FirstOrDefaultAsync();
+
+                    if (expiredOTP != null && expiredOTP.ExpiresAt <= currentTime)
+                    {
+                        return new
+                        {
+                            Success = false,
+                            Message = $"OTP has expired at {expiredOTP.ExpiresAt:HH:mm:ss}. Please request a new OTP.",
+                            ErrorType = "OTP_EXPIRED",
+                            ExpiryTime = expiredOTP.ExpiresAt,
+                            CurrentTime = currentTime
+                        };
+                    }
+
                     return new
                     {
                         Success = false,
-                        Message = "No OTP found for this email. Please request a new OTP.",
-                        ErrorType = "OTP_NOT_FOUND"
+                        Message = "Invalid OTP. Please check the code and try again.",
+                        ErrorType = "OTP_MISMATCH"
                     };
                 }
 
-                var (storedOtp, expiry) = _otpStore[email];
+                // Mark OTP as used
+                otpEntity.IsUsed = true;
+                otpEntity.UsedAt = currentTime;
 
-                // Check if OTP has expired
-                if (DateTime.UtcNow > expiry)
-                {
-                    _otpStore.Remove(email); // Clean up expired OTP
-                    return new
-                    {
-                        Success = false,
-                        Message = $"OTP has expired at {expiry:HH:mm:ss}. Please request a new OTP.",
-                        ErrorType = "OTP_EXPIRED",
-                        ExpiryTime = expiry,
-                        CurrentTime = DateTime.UtcNow
-                    };
-                }
+                // Update user verification status
+                user.IsEmailVerified = true;
+                user.LastUpdated = currentTime;
+                
+                await _context.SaveChangesAsync();
 
-                // Case-insensitive OTP comparison
-                if (string.Equals(storedOtp, otp, StringComparison.OrdinalIgnoreCase))
-                {
-                    _otpStore.Remove(email); // Remove used OTP
-
-                    // Update user verification status
-                    user.IsEmailVerified = true;
-                    user.LastUpdated = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-
-                    return new
-                    {
-                        Success = true,
-                        Message = "Email verified successfully!",
-                        VerifiedAt = user.LastUpdated,
-                        Email = email
-                    };
-                }
-
-                // OTP mismatch
                 return new
                 {
-                    Success = false,
-                    Message = "Invalid OTP. Please check the code and try again.",
-                    ErrorType = "OTP_MISMATCH",
-                    ProvidedOTP = otp,
-                    RemainingAttempts = 2 // You could implement attempt tracking
+                    Success = true,
+                    Message = "Email verified successfully!",
+                    VerifiedAt = user.LastUpdated,
+                    Email = email
                 };
             }
             catch (Exception ex)
@@ -238,6 +274,7 @@ namespace Orama_API.Services
                 };
             }
         }
+        
         public async Task<bool> ResendEmailOTPAsync(string email)
         {
             try
@@ -250,12 +287,13 @@ namespace Orama_API.Services
                 return false;
             }
         }
-        private static readonly Random _random = new Random();
         
+        private static readonly Random _random = new Random(); 
         private string GenerateOTP()
         {
             return _random.Next(100000, 999999).ToString();
         }
+        
         private async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             // Get settings from configuration or environment variables
@@ -293,6 +331,7 @@ namespace Orama_API.Services
 
             await client.SendMailAsync(message);
         }
+        
         public async Task<object> DebugOTPAsync(EmailOTPRequestDTO request)
         {
             try
@@ -301,26 +340,35 @@ namespace Orama_API.Services
                     throw new ArgumentException("Email is required.");
 
                 var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+                var currentTime = DateTime.UtcNow;
 
-                if (_otpStore.ContainsKey(normalizedEmail))
+                // Get all OTPs for this email from database
+                var otps = await _context.OTPs
+                    .Where(o => o.Email == normalizedEmail)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .ToListAsync();
+
+                var activeOTPs = otps.Where(o => !o.IsUsed && o.ExpiresAt > currentTime).ToList();
+                var expiredOTPs = otps.Where(o => o.ExpiresAt <= currentTime).ToList();
+                var usedOTPs = otps.Where(o => o.IsUsed).ToList();
+
+                return new
                 {
-                    var (otp, expiry) = _otpStore[normalizedEmail];
-                    return new
+                    message = "OTP database query results",
+                    email = normalizedEmail,
+                    totalOTPs = otps.Count,
+                    activeOTPs = activeOTPs.Count,
+                    expiredOTPs = expiredOTPs.Count,
+                    usedOTPs = usedOTPs.Count,
+                    currentTime = currentTime,
+                    activeOTPDetails = activeOTPs.Select(o => new
                     {
-                        message = "OTP found in store",
-                        storedOtp = otp,
-                        expiry = expiry,
-                        isExpired = DateTime.UtcNow > expiry,
-                        currentTime = DateTime.UtcNow,
-                        timeRemaining = expiry - DateTime.UtcNow
-                    };
-                }
-
-                return new 
-                {   
-                    message = "No OTP found for this email",
-                    totalStoredOTPs = _otpStore.Count,
-                    storedEmails = _otpStore.Keys.ToList()
+                        id = o.Id,
+                        otp = o.OTP,
+                        createdAt = o.CreatedAt,
+                        expiresAt = o.ExpiresAt,
+                        timeRemaining = o.ExpiresAt - currentTime
+                    }).ToList()
                 };
             }
             catch (Exception ex)

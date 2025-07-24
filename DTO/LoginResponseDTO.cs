@@ -6,8 +6,12 @@ namespace Orama_API.DTO
 {
     public class LoginResponseDTO
     {
-        public required string Message { get; set; }
-        public int? UserId { get; set; }     
+        [Required]
+        public string Message { get; set; }
+        public int? UserId { get; set; }
+        public string? Email { get; set; }
         public DateTime? Logintime { get; set; }
+        public string? Token { get; set; }
+        public DateTime? TokenValidity { get; set; }
     }
 }

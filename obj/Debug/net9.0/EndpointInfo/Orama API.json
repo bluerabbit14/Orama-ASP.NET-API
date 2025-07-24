@@ -2,11 +2,89 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Orama API",
-    "description": "A simple ASP.NET Core Web API in .NET 9 Framework",
+    "description": "A simple ASP.NET Core Web API with JWT Authentication",
+    "contact": {
+      "name": "Orama API Support",
+      "email": "support@orama.com"
+    },
     "version": "v1"
   },
   "paths": {
-    "/api/Admin/GetAll": {
+    "/api/Admin/Register": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Admin/Authorize": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Admin/GetAllUser": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Admin/GetAllAdmin": {
       "get": {
         "tags": [
           "Admin"
@@ -106,6 +184,48 @@
         }
       }
     },
+    "/api/Admin/UpdateUserProfile/{id}": {
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Admin/DeleteUser/{id}": {
       "delete": {
         "tags": [
@@ -129,10 +249,10 @@
         }
       }
     },
-    "/api/Email/IsEmailValid": {
+    "/api/Email_Service/IsEmailValid": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "parameters": [
           {
@@ -150,10 +270,10 @@
         }
       }
     },
-    "/api/Email/IsEmailRegistered": {
+    "/api/Email_Service/IsEmailRegistered": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "parameters": [
           {
@@ -171,10 +291,10 @@
         }
       }
     },
-    "/api/Email/IsEmailVerify/{Email}": {
+    "/api/Email_Service/IsEmailVerify/{Email}": {
       "get": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "parameters": [
           {
@@ -193,10 +313,10 @@
         }
       }
     },
-    "/api/Email/SendEmailOTP": {
+    "/api/Email_Service/SendEmailOTP": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "requestBody": {
           "content": {
@@ -224,10 +344,10 @@
         }
       }
     },
-    "/api/Email/VerifyEmailOTP": {
+    "/api/Email_Service/VerifyEmailOTP": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "requestBody": {
           "content": {
@@ -255,10 +375,10 @@
         }
       }
     },
-    "/api/Email/ResendEmailOTP": {
+    "/api/Email_Service/ResendEmailOTP": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "requestBody": {
           "content": {
@@ -286,10 +406,10 @@
         }
       }
     },
-    "/api/Email/DebugOTP": {
+    "/api/Email_Service/DebugOTP": {
       "post": {
         "tags": [
-          "Email"
+          "Email_Service"
         ],
         "requestBody": {
           "content": {
@@ -306,6 +426,68 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/EmailOTPRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Jwt_Service/ValidateAndDebugToken": {
+      "post": {
+        "tags": [
+          "Jwt_Service"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Jwt_Service/ValidateTokenClaims": {
+      "post": {
+        "tags": [
+          "Jwt_Service"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
               }
             }
           }
@@ -409,6 +591,61 @@
           }
         }
       }
+    },
+    "/api/User/UpdateProfile": {
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/User/MyProfile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/User/DeleteMyProfile": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -475,6 +712,48 @@
         },
         "additionalProperties": false
       },
+      "ProfileUpdateUserDTO": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "pincode": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true
+          },
+          "languagePreference": {
+            "type": "string",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true
+          },
+          "socialHandle": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SignUpRequestDTO": {
         "type": "object",
         "properties": {
@@ -494,6 +773,19 @@
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Enter your JWT Access Token",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }

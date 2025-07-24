@@ -6,11 +6,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Orama_API.Migrations
 {
     /// <inheritdoc />
-    public partial class UserMig : Migration
+    public partial class AddMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "OTPs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    OTP = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false),
+                    UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Purpose = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OTPs", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "UserProfilies",
                 columns: table => new
@@ -43,11 +62,24 @@ namespace Orama_API.Migrations
                 {
                     table.PrimaryKey("PK_UserProfilies", x => x.UserId);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OTPs_Email",
+                table: "OTPs",
+                column: "Email");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OTPs_ExpiresAt",
+                table: "OTPs",
+                column: "ExpiresAt");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "OTPs");
+
             migrationBuilder.DropTable(
                 name: "UserProfilies");
         }
